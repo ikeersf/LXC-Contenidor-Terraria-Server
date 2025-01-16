@@ -1,0 +1,43 @@
+#!/bin/bash
+#Variables
+CONTAINER_NAME="TerrariaServer"
+IMAGE="ubuntu:24.04"
+URL_DOWNLOAD="https://terraria.org/api/download/pc-dedicated-server/terraria-server-1449.zip"
+delay=$1
+Carpeta=terraria-server-1449
+Ejecutar=TerrariaServer.bin.x86_64
+
+clear
+
+function wait_bar() {
+local delay=$1
+for i in {1..15}; do
+  printf '=%.0s' {1..$i}
+  sleep "$delay"
+done
+echo
+}
+
+wait_bar 0.5
+
+clear
+
+function verificar_contenedor {
+if [ ! -e /var/lib/lxd/containers/$CONTAINER_NAME ]; then
+  echo "Creando el contenedor $CONTAINER_NAME !!"
+  clear
+  lxc launch $IMAGE $CONTAINER_NAME && lxc config device add $CONTAINER_NAME TerrariaProxy proxy connect=tcp:127.0.0.1:7777 listen=tcp:0.0.0.0:8888
+  clear
+  echo "Contenedor $CONTAINER_NAME encendido!!"
+else
+  echo "Contenedor $CONTAINER_NAME ya está creado."
+fi
+}
+
+verificar_contenedor
+
+clear
+
+lxc exec TerrariaServer /bin/bash
+
+clear
