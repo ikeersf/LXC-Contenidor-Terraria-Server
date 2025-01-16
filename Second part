@@ -1,0 +1,95 @@
+#!/bin/bash
+# variables
+CONTAINER_NAME="TerrariaServer"
+IMAGE="ubuntu:24.04"
+URL_DOWNLOAD="https://terraria.org/api/download/pc-dedicated-server/terraria-server-1449.zip"
+delay=$1
+Carpeta=terraria-server-1449
+Ejecutar=TerrariaServer.bin.x86_64
+
+clear
+
+echo "Descargando archivos desde $URL_DOWNLOAD"
+wget -N $URL_DOWNLOAD
+
+clear
+
+sudo apt install unzip
+
+clear
+
+unzip $Carpeta
+cd ~/1449/Linux/
+
+sudo apt install mono-complete
+
+clear
+
+cd ~/1449/Linux
+
+FILE=~/1449/Linux/config.txt
+if [ -f "$FILE" ]; then
+ rm ~/1449/Linux/config.txt
+fi
+
+sudo touch config.txt
+
+clear
+
+sudo chmod 777 /home/usuario/1449/Linux/config.txt
+
+clear
+
+echo >> ~/1449/Linux/config.txt
+echo "world=~\1449\Linux\Worlds\world1.wld"
+
+clear
+
+TEMP=$(getopt -n "$0" -a -l "jugadores:,semilla:,mundo:,puerto:,dificultad:,contraseña" -- -- "$@")
+
+ [ $? -eq 0 ] || exit
+
+ eval set --  "$TEMP"
+
+ while [ $# -gt 0 ]
+ do
+          case "$1" in
+                 --semilla) TEST_SEED="$2"; shift;;
+                 --mundo) TEST_WORLD="$2"; shift;;
+                 --dificultad) TEST_DIFFICULTY="$2"; shift;;
+                 --jugadores) TEST_PLAYERS="$2"; shift;;
+                 --contraseña) TEST_PASSWORD="$2"; shift;;
+                 --) shift;;
+          esac
+          shift;
+ done
+ echo "JUGADORES: $TEST_PLAYERS";
+ echo "SEMILLA: $TEST_SEED";
+ echo "MUNDO: $TEST_WORLD";
+ echo "DIFICULTAD: $TEST_DIFFICULTY";
+ echo "contraseña: $TEST_PASSWORD";
+
+echo "world=~\\1449\\Linux\\Worlds\\world1.wld" >> ~/1449/Linux/config.txt
+echo "autocreate=1" >> ~/1449/Linux/config.txt
+echo "seed=$TEST_SEED" >> ~/1449/Linux/config.txt
+echo "worldname=$TEST_WORLD" >> ~/1449/Linux/config.txt
+echo "difficulty=$TEST_DIFFICULTY" >> ~/1449/Linux/config.txt
+echo "maxplayers=$TEST_PLAYERS" >> ~/1449/Linux/config.txt
+echo "port=7777" >> ~/1449/Linux/config.txt
+echo "password=$TEST_PASSWORD" >> ~/1449/Linux/config.txt
+echo "banlist=banlist.txt" >> ~/1449/Linux/config.txt
+echo "secure=1" >> ~/1449/Linux/config.txt
+
+clear
+
+echo "El servidor ya esta configurado."
+
+chmod 777 config.txt
+
+clear
+
+chmod 777 TerrariaServer.bin.x86_64
+
+clear
+
+./TerrariaServer.bin.x86_64 -config ~/1449/Linux/config.txt
